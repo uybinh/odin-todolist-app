@@ -58,28 +58,35 @@ input:focus {
 }
 
 li {
+  padding-left: 20px;
+  height: 40px;
   background: #fff;
   color: #666;
-  height: 40px;
   line-height: 40px;
+  transition: all ease-in-out .2s;
+
+  li:nth-child(even) {
+    background: #f7f7f7;
+  }
+  span {
+    float: right;
+    background: red;
+    color: white;
+    width: 0;
+    text-align: center;
+    opacity: 0;
+    transition: all 0.2s;
+  }
 }
 
-li:nth-child(even) {
-  background: #f7f7f7;
-}
+li:hover {
+  font-weight: 700;
+  transform: scale(1.02);
+  box-shadow: 0 0.5px 0 0 #ffffff inset, 0 1px 2px 0 #B3B3B3;
+  z-index: 99;
 
-span {
-  display: inline-block;
-  background: red;
-  color: white;
-  width: 0;
-  text-align: center;
-  margin-right: 20px;
-  opacity: 0;
-  transition: all 0.2s;
-}
-
-li:hover span {
-  width: 40px;
-  opacity: 1;
+  span {
+    width: 50px;
+    opacity: 1;
+  }
 }

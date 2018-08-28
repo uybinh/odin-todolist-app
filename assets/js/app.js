@@ -1,14 +1,10 @@
 const EventEmitter = require('events');
+const myEmittor = () => Object.assign({}, EventEmitter.prototype)
+const emittor = myEmittor()
 
-const emittor = new EventEmitter()
 
-emittor.on('hello', (data)=>{
-  console.log(`hello ${data}`)
-})
 
-emittor.emit('hello', "binh")
 
-console.log('1')
 // const project = {
 //   id,
 //   priority,
