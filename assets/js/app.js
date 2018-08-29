@@ -1,59 +1,69 @@
 const EventEmitter = require('events');
 const myEmittor = () => Object.assign({}, EventEmitter.prototype)
 const emittor = myEmittor()
+const DOMActions = require('./modules/domactions')
+
+
+const allProject = [
+  {
+    id: 1,
+    name: 'Home',
+    description: "All todos about home",
+    priority: 1,
+    todos: [1]
+  },
+  {
+    id: 2,
+    name: 'Work',
+    description: "All todos about work",
+    priority: 2,
+    todos: []
+  },
+  {
+    id: 3,
+    name: 'Others',
+    description: "All others todos",
+    priority: 3,
+    todos: []
+  }
+]
+
+const allTodos = [
+  {
+    id: 1,
+    description: "Go to school",
+    projectId: 1,
+    priority: 2
+  }
+]
+
+const Project = function(name, description, priority) {
+  return {
+    name,
+    description,
+    priority
+  }
+}
+
+const Projects = function(){
+  const allProject = []
+
+
+  const state = function() {
+    return allProject
+  }
 
 
 
-
-// const project = {
-//   id,
-//   priority,
-//   name,
-//   items: [],
-//   dueDate
-// }
-
-// const todoItem = {
-//   id,
-//   priority,
-//   content,
-//   projectId
-// }
-
-// console.log('Hello there')
+  return {
+    getFromStorage,
+    saveToStorage,
+    state
+  }
+}
 
 document.addEventListener('DOMContentLoaded', function(){
-
-  /**
-   * * Functions for DOM manipulation
-   */
-  const DOMActions = (function() {
-
-    /**
-     * * Select element base on data-type and data-id
-     * @param {string} type data-type attribute of element
-     * @param {number} id data-id attribute of elemtn
-     */
-    const selectElement = (type, id) => {
-      id = id.toString()
-      return document.querySelector(`[data-type='${type}'][data-id='${id}']`)
-    }
-
-    /**
-     * * Remove element base on data-type and data-id
-     * @param {string} type data-type attribute of element
-     * @param {number} id data-id attribute of elemtn
-     */
-    const removeElement = (type, id) => {
-      const element = selectElement(type, id)
-      element.parentElement.removeChild(element)
-    }
-
-    return {
-      selectElement,
-      removeElement
-    }
-  })()
-
-  DOMActions.removeElement('project', 1)
+  DOMActions.renderProjects()
+  DOMActions.renderTodos()
+  DOMActions.renderNewProject()
 })
