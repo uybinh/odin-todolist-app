@@ -1,3 +1,5 @@
+const projectComponent = require('./components/component-projects')
+
 /**
  * * Functions for DOM manipulation
  */
@@ -5,48 +7,30 @@ const DOMActions = (function() {
 
   /**
    * * Select element base on data-type and data-id
+   * @param {string} elementType type of element ( 'div', 'span', ...)
    * @param {string} type data-type attribute of element
    * @param {number} id data-id attribute of elemtn
    */
-  const selectElement = (type, id) => {
-    id = id.toString()
+  const selectElement = (elementType, type, id) => {
+    if (!typeof id == 'string') {
+      id = id.toString()
+    }
     return document.querySelector(`[data-type='${type}'][data-id='${id}']`)
   }
 
   /**
    * * Remove element base on data-type and data-id
+   * @param {string} elementType type of element ( 'div', 'span', ...)
    * @param {string} type data-type attribute of element
    * @param {number} id data-id attribute of elemtn
    */
-  const removeElement = (type, id) => {
-    const element = selectElement(type, id)
+  const removeElement = (elementType, type, id) => {
+    const element = selectElement(elementType, type, id)
     element.parentElement.removeChild(element)
   }
 
   const renderProjects = function(projects) {
-    const liText = (project) => `
-      <li data-id='${project.id}' data-type='project'>${project.name}<span><i class="fa fa-trash" aria-hidden="true"></i></span></li>
-    `
-    const ulText = (projects) => {
-      let html = ''
-      for (let id in projects) {
-        html += liText(projects[id])
-      }
-      return html
-    }
-
-    const content = `
-    <div id="projects" class="container projects">
-      <header>
-        <h1>Projects</h1>
-        <button> Add </button>
-      </header>
-      <ul class="list">
-      ${ulText(projects)}
-      </ul>
-    </div>
-    `
-    document.body.innerHTML += content
+    document.body.appendChild(projectComponent(projects))
   }
 
   const renderTodos = function() {
