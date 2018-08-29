@@ -5,8 +5,8 @@ const DOMActions = require('./modules/domactions')
 const Projects = require("./modules/projects")
 
 emittor.on('save project', function(allProjects){
-  console.log('Hello there')
-  Storage.save(allProjects)
+  DOMActions.renderProjects(allProjects.state())
+  Storage.save(allProjects.state())
 })
 
 const Project = function(name, description, priority) {
@@ -23,15 +23,13 @@ const schoolProject = Project(
   2
 )
 
-const allProjects = Projects()
 
-allProjects.add(schoolProject)
-emittor.emit('save project', allProjects)
 
 document.addEventListener('DOMContentLoaded', function(){
-  DOMActions.renderProjects()
-  DOMActions.renderTodos()
-  DOMActions.renderNewProject()
+  // DOMActions.renderProjects(allProjects.state()
+  const allProjects = Projects()
+  allProjects.add(schoolProject)
+  emittor.emit('save project', allProjects)
 })
 
 },{"./modules/domactions":2,"./modules/emittor":3,"./modules/projects":4,"./modules/storage":5}],2:[function(require,module,exports){
@@ -60,18 +58,26 @@ const DOMActions = (function() {
     element.parentElement.removeChild(element)
   }
 
-  const renderProjects = function() {
+  const renderProjects = function(projects) {
+    const liText = (project) => `
+      <li data-id='${project.id}' data-type='project'>${project.name}<span><i class="fa fa-trash" aria-hidden="true"></i></span></li>
+    `
+    const ulText = (projects) => {
+      let html = ''
+      for (let id in projects) {
+        html += liText(projects[id])
+      }
+      return html
+    }
+
     const content = `
     <div id="projects" class="container projects">
       <header>
         <h1>Projects</h1>
         <button> Add </button>
       </header>
-
       <ul class="list">
-        <li data-id='1' data-type='project'>Home<span><i class="fa fa-trash" aria-hidden="true"></i></span></li>
-        <li data-id='2' data-type='project'>Work<span><i class="fa fa-trash" aria-hidden="true"></i></span></li>
-        <li data-id='3' data-type='project'>Others<span><i class="fa fa-trash" aria-hidden="true"></i></span></li>
+      ${ulText(projects)}
       </ul>
     </div>
     `
@@ -85,7 +91,6 @@ const DOMActions = (function() {
       <h1>To-Do</h1>
       <button> Add </button>
     </header>
-
 
     <ul class="list">
       <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Go to School</li>
@@ -211,7 +216,7 @@ module.exports = Projects
 const Storage = (function() {
 
   const save = function(allProjects) {
-    data = JSON.stringify(allProjects.state())
+    data = JSON.stringify(allProjects)
     window.localStorage.setItem('projects', data)
   }
 

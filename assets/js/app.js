@@ -4,8 +4,8 @@ const DOMActions = require('./modules/domactions')
 const Projects = require("./modules/projects")
 
 emittor.on('save project', function(allProjects){
-  console.log('Hello there')
-  Storage.save(allProjects)
+  DOMActions.renderProjects(allProjects.state())
+  Storage.save(allProjects.state())
 })
 
 const Project = function(name, description, priority) {
@@ -22,13 +22,11 @@ const schoolProject = Project(
   2
 )
 
-const allProjects = Projects()
 
-allProjects.add(schoolProject)
-emittor.emit('save project', allProjects)
 
 document.addEventListener('DOMContentLoaded', function(){
-  DOMActions.renderProjects()
-  DOMActions.renderTodos()
-  DOMActions.renderNewProject()
+  // DOMActions.renderProjects(allProjects.state()
+  const allProjects = Projects()
+  allProjects.add(schoolProject)
+  emittor.emit('save project', allProjects)
 })
