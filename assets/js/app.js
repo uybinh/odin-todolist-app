@@ -8,15 +8,23 @@ const eventActions = require("./modules/eventActions")
 
 
 document.addEventListener('DOMContentLoaded', function(){
-  // DOMActions.renderProjects(allProjects.state()
+
+
   emittor.on('save project', function(allProjects){
     DOMActions.renderProjects(allProjects.state())
+
     eventActions.addBatchEvent(`span.btn-delete[data-type='projects']`,
-      function(target){
-        console.log(target)
-        DOMActions.removeElement('span','project', target.dataset.id)
+      function(button){
+        DOMActions.removeElement('span','project', button.dataset.id)
+        emittor.emit('delete project', button.dataset.id )
       }
     )
+
+    Storage.save(allProjects.state())
+  })
+
+  emittor.on('delete project', (id) => {
+    allProjects.remove(id)
     Storage.save(allProjects.state())
   })
 

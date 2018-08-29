@@ -35,6 +35,10 @@ const Projects = function(){
     return true
   }
 
+  /**
+   *
+   * @param {number} id project's id
+   */
   const remove = function(id) {
     delete allProject[id]
   }
@@ -42,6 +46,7 @@ const Projects = function(){
   return {
     state,
     add,
+    remove
   }
 }
 
