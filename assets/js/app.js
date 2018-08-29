@@ -1,41 +1,12 @@
-const EventEmitter = require('events');
-const myEmittor = () => Object.assign({}, EventEmitter.prototype)
-const emittor = myEmittor()
+const emittor = require("./modules/emittor")
+const Storage = require("./modules/storage")
 const DOMActions = require('./modules/domactions')
+const Projects = require("./modules/projects")
 
-
-const allProject = [
-  {
-    id: 1,
-    name: 'Home',
-    description: "All todos about home",
-    priority: 1,
-    todos: [1]
-  },
-  {
-    id: 2,
-    name: 'Work',
-    description: "All todos about work",
-    priority: 2,
-    todos: []
-  },
-  {
-    id: 3,
-    name: 'Others',
-    description: "All others todos",
-    priority: 3,
-    todos: []
-  }
-]
-
-const allTodos = [
-  {
-    id: 1,
-    description: "Go to school",
-    projectId: 1,
-    priority: 2
-  }
-]
+emittor.on('save project', function(allProjects){
+  console.log('Hello there')
+  Storage.save(allProjects)
+})
 
 const Project = function(name, description, priority) {
   return {
@@ -45,22 +16,16 @@ const Project = function(name, description, priority) {
   }
 }
 
-const Projects = function(){
-  const allProject = []
+const schoolProject = Project(
+  "School",
+  "School todos",
+  2
+)
 
+const allProjects = Projects()
 
-  const state = function() {
-    return allProject
-  }
-
-
-
-  return {
-    getFromStorage,
-    saveToStorage,
-    state
-  }
-}
+allProjects.add(schoolProject)
+emittor.emit('save project', allProjects)
 
 document.addEventListener('DOMContentLoaded', function(){
   DOMActions.renderProjects()

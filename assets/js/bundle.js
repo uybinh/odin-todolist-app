@@ -1,42 +1,13 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-const EventEmitter = require('events');
-const myEmittor = () => Object.assign({}, EventEmitter.prototype)
-const emittor = myEmittor()
+const emittor = require("./modules/emittor")
+const Storage = require("./modules/storage")
 const DOMActions = require('./modules/domactions')
+const Projects = require("./modules/projects")
 
-
-const allProject = [
-  {
-    id: 1,
-    name: 'Home',
-    description: "All todos about home",
-    priority: 1,
-    todos: [1]
-  },
-  {
-    id: 2,
-    name: 'Work',
-    description: "All todos about work",
-    priority: 2,
-    todos: []
-  },
-  {
-    id: 3,
-    name: 'Others',
-    description: "All others todos",
-    priority: 3,
-    todos: []
-  }
-]
-
-const allTodos = [
-  {
-    id: 1,
-    description: "Go to school",
-    projectId: 1,
-    priority: 2
-  }
-]
+emittor.on('save project', function(allProjects){
+  console.log('Hello there')
+  Storage.save(allProjects)
+})
 
 const Project = function(name, description, priority) {
   return {
@@ -46,22 +17,16 @@ const Project = function(name, description, priority) {
   }
 }
 
-const Projects = function(){
-  const allProject = []
+const schoolProject = Project(
+  "School",
+  "School todos",
+  2
+)
 
+const allProjects = Projects()
 
-  const state = function() {
-    return allProject
-  }
-
-
-
-  return {
-    getFromStorage,
-    saveToStorage,
-    state
-  }
-}
+allProjects.add(schoolProject)
+emittor.emit('save project', allProjects)
 
 document.addEventListener('DOMContentLoaded', function(){
   DOMActions.renderProjects()
@@ -69,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function(){
   DOMActions.renderNewProject()
 })
 
-},{"./modules/domactions":2,"events":3}],2:[function(require,module,exports){
+},{"./modules/domactions":2,"./modules/emittor":3,"./modules/projects":4,"./modules/storage":5}],2:[function(require,module,exports){
 /**
  * * Functions for DOM manipulation
  */
@@ -189,6 +154,79 @@ const DOMActions = (function() {
 
 module.exports = DOMActions
 },{}],3:[function(require,module,exports){
+const EventEmitter = require('events');
+const myEmittor = () => Object.assign({}, EventEmitter.prototype)
+
+module.exports = myEmittor()
+},{"events":6}],4:[function(require,module,exports){
+const Projects = function(){
+  let ID = 3
+  const allProject = {
+    1: {
+      id: 1,
+      name: 'Home',
+      description: "All todos about home",
+      priority: 1,
+      todos: [1]
+    },
+    2: {
+      id: 2,
+      name: 'Work',
+      description: "All todos about work",
+      priority: 2,
+      todos: []
+    },
+    3: {
+      id: 3,
+      name: 'Others',
+      description: "All others todos",
+      priority: 3,
+      todos: []
+    }
+  }
+
+
+  const state = function() {
+    return allProject
+  }
+
+  const add = function(project) {
+    project.id = ++ID
+    allProject[ID] = project
+    return true
+  }
+
+  const remove = function(id) {
+    delete allProject[id]
+  }
+
+  return {
+    state,
+    add,
+  }
+}
+
+module.exports = Projects
+},{}],5:[function(require,module,exports){
+const Storage = (function() {
+
+  const save = function(allProjects) {
+    data = JSON.stringify(allProjects.state())
+    window.localStorage.setItem('projects', data)
+  }
+
+  const load = function() {
+
+  }
+
+  return {
+    save,
+    load
+  }
+})()
+
+module.exports = Storage
+},{}],6:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
