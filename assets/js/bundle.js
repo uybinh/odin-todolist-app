@@ -1,103 +1,172 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-const emittor = require("./modules/emittor")
-const Storage = require("./modules/storage")
-const DOMActions = require('./modules/domactions')
-const Projects = require("./modules/projects")
-const Project = require("./modules/project")
-const eventActions = require("./modules/eventActions")
+const emittor = require('./modules/emittor');
+const Storage = require('./modules/storage');
+const DOMActions = require('./modules/domactions');
+const Projects = require('./modules/projects');
+const Project = require('./modules/project');
+const eventActions = require('./modules/eventActions');
+const projectsComponent = require('./modules/components/component-projects');
+const projectComponent = require('./modules/components/component-project');
+const newProjectComponent = require('./modules/components/component-new-project');
 
 
+document.addEventListener('DOMContentLoaded', () => {
+  const initialState = {
+    1: {
+      id: 1,
+      name: 'Home',
+      description: 'All todos about home',
+      priority: 1,
+      todos: [1],
+    },
+    2: {
+      id: 2,
+      name: 'Work',
+      description: 'All todos about work',
+      priority: 2,
+      todos: [],
+    },
+    3: {
+      id: 3,
+      name: 'Others',
+      description: 'All others todos',
+      priority: 3,
+      todos: [],
+    },
+  };
+  const allProjects = Projects(initialState);
+  const projectsElement = projectsComponent(allProjects.state());
+  DOMActions.render('body', projectsElement);
 
-document.addEventListener('DOMContentLoaded', function(){
+  const newProject = Project(
+    'School',
+    'School works',
+    3,
+  );
 
 
-  emittor.on('save project', function(allProjects){
-    DOMActions.renderProjects(allProjects.state())
+  const newProjectElement = projectComponent(newProject);
 
-    eventActions.addBatchEvent(`span.btn-delete[data-type='projects']`,
-      function(button){
-        DOMActions.removeElement('span','project', button.dataset.id)
-        emittor.emit('delete project', button.dataset.id )
-      }
-    )
+  eventActions.addEvent('#btn-new-project', () => {
+    const newProjectContainer = newProjectComponent();
+    DOMActions.render('body', newProjectContainer);
+  });
+});
 
-    Storage.save(allProjects.state())
-  })
+},{"./modules/components/component-new-project":2,"./modules/components/component-project":3,"./modules/components/component-projects":4,"./modules/domactions":5,"./modules/emittor":6,"./modules/eventActions":7,"./modules/project":8,"./modules/projects":9,"./modules/storage":10}],2:[function(require,module,exports){
+function newProjectComponent() {
+  const element = document.createElement('div');
+  element.id = 'new-project';
+  element.classList.add('container');
+  element.innerHTML = `
+  <form id="new-pj-form" action="#">
 
-  emittor.on('delete project', (id) => {
-    allProjects.remove(id)
-    Storage.save(allProjects.state())
-  })
+  <header>
+    <h1>New Project</h1>
+    <button> Create </button>
+  </header>
 
-  const schoolProject = Project(
-    "School",
-    "School todos",
-    2
-  )
-  const allProjects = Projects()
-  allProjects.add(schoolProject)
-  emittor.emit('save project', allProjects)
-})
+  <ul>
+    <li>
+      <input name="project-name" type="text" placeholder="Enter Project name">
+    </li>
+    <li>
+      <Input name="project-description" type="text" placeholder="Project description">
+    </li>
+    <li class="priority ">
+      <p>Priority</p>
+      <div class="flex">
+        <div class="field-group">
+          <input type="radio" name="priority-level" id="high-priority" value="1">
+          <label for="high-priority"> High</label>
+        </div>
 
-},{"./modules/domactions":3,"./modules/emittor":4,"./modules/eventActions":5,"./modules/project":6,"./modules/projects":7,"./modules/storage":8}],2:[function(require,module,exports){
-const projectComponent = function(projects) {
+        <div class="field-group">
+          <input type="radio" name="priority-level" id="medium-priority" value="2">
+          <label for="medium-priority">Medium</label>
+        </div>
 
-  const createLi = (project) => {
-    const li = document.createElement('li')
-    li.dataset.id = project.id
-    li.dataset.type = 'project'
-    li.textContent = project.name
+        <div class="field-group">
+          <input type="radio" name="priority-level" id="low-priority" value="3">
+          <label for="low-priority">Low</label>
+        </div>
+      </div>
+    </li>
+  </ul>
+  </form>
+  `;
+  return element;
+}
+
+module.exports = newProjectComponent;
+
+},{}],3:[function(require,module,exports){
+function projectComponent(project) {
+  function createLi(project) {
+    const li = document.createElement('li');
+    li.dataset.id = project.id;
+    li.dataset.type = 'project';
+    li.textContent = project.name;
     li.innerHTML += `
     <span class='btn-delete' data-type='projects' data-id='${project.id}'>
       <i class="fa fa-trash" aria-hidden="true"></i>
-    </span>`
-    return li
+    </span>`;
+    return li;
   }
 
-  const createUl = (projects) => {
-    const ul = document.createElement('ul')
-    ul.classList.add('list')
-    for (let id in projects) {
-      ul.appendChild(createLi(projects[id]))
+  return createLi(project);
+}
+
+module.exports = projectComponent;
+
+},{}],4:[function(require,module,exports){
+const projectComponent = require('./component-project');
+
+
+function projectsComponent(projects) {
+  function createUl(projects) {
+    const ul = document.createElement('ul');
+    ul.id = 'projects-list';
+    ul.classList.add('list');
+    for (const id in projects) {
+      console.log(projects);
+      const projectElement = projectComponent(projects[id]);
+      ul.appendChild(projectElement);
     }
-    return ul
+    return ul;
   }
 
-  const projectsElement = document.createElement('div')
-  projectsElement.id = 'projects'
-  projectsElement.classList.add('container', 'projects')
+  const projectsElement = document.createElement('div');
+  projectsElement.id = 'projects';
+  projectsElement.classList.add('container', 'projects');
   projectsElement.innerHTML += `
     <header>
       <h1>Projects</h1>
-      <button> Add </button>
+      <button id='btn-new-project'> Add </button>
     </header>
-  `
-  projectsElement.appendChild(createUl(projects))
+  `;
+  projectsElement.appendChild(createUl(projects));
 
-  return projectsElement
-
+  return projectsElement;
 }
 
-module.exports = projectComponent
-},{}],3:[function(require,module,exports){
-const projectComponent = require('./components/component-projects')
+module.exports = projectsComponent;
+
+},{"./component-project":3}],5:[function(require,module,exports){
+const projectComponent = require('./components/component-projects');
 
 /**
  * * Functions for DOM manipulation
  */
-const DOMActions = (function() {
-
+function DOMActions() {
   /**
    * * Select element base on data-type and data-id
    * @param {string} elementType type of element ( 'div', 'span', ...)
    * @param {string} type data-type attribute of element
    * @param {number} id data-id attribute of elemtn
    */
-  const selectElement = (elementType, type, id) => {
-    if (!typeof id == 'string') {
-      id = id.toString()
-    }
-    return document.querySelector(`[data-type='${type}'][data-id='${id}']`)
+  function selectElement(elementType, type, id) {
+    return document.querySelector(`[data-type='${type}'][data-id='${id}']`);
   }
 
   /**
@@ -107,15 +176,20 @@ const DOMActions = (function() {
    * @param {number} id data-id attribute of elemtn
    */
   const removeElement = (elementType, type, id) => {
-    const element = selectElement(elementType, type, id)
-    element.parentElement.removeChild(element)
+    const element = selectElement(elementType, type, id);
+    element.parentElement.removeChild(element);
+  };
+
+  /**
+   *
+   * @param {object} projects Projects object
+   */
+  function render(parentElement, element) {
+    const parent = document.querySelector(parentElement);
+    parent.appendChild(element);
   }
 
-  const renderProjects = function(projects) {
-    document.body.appendChild(projectComponent(projects))
-  }
-
-  const renderTodos = function() {
+  function renderTodos() {
     const content = `
     <div class="container todos">
     <header>
@@ -130,185 +204,134 @@ const DOMActions = (function() {
     </ul>
 
   </div>
-    `
+    `;
 
-    document.body.innerHTML += content
+    document.body.innerHTML += content;
   }
 
-  const renderNewProject = function() {
-    const content = `
-    <div class="container">
-    <form id="new-pj-form" action="#">
-
-    <header>
-      <h1>New Project</h1>
-      <button> Create </button>
-    </header>
-
-    <ul>
-      <li>
-        <input name="project-name" type="text" placeholder="Enter Project name">
-      </li>
-      <li>
-        <Input name="project-description" type="text" placeholder="Project description">
-      </li>
-      <li class="priority ">
-        <p>Priority</p>
-        <div class="flex">
-          <div class="field-group">
-            <input type="radio" name="priority-level" id="high-priority" value="1">
-            <label for="high-priority"> High</label>
-          </div>
-
-          <div class="field-group">
-            <input type="radio" name="priority-level" id="medium-priority" value="2">
-            <label for="medium-priority">Medium</label>
-          </div>
-
-          <div class="field-group">
-            <input type="radio" name="priority-level" id="low-priority" value="3">
-            <label for="low-priority">Low</label>
-          </div>
-        </div>
-      </li>
-    </ul>
-
-    </form>
-  </div>
-    `
-    document.body.innerHTML += content
-  }
 
   return {
     selectElement,
     removeElement,
-    renderProjects,
+    render,
     renderTodos,
-    renderNewProject
-  }
-})()
+  };
+}
 
-module.exports = DOMActions
-},{"./components/component-projects":2}],4:[function(require,module,exports){
+module.exports = DOMActions();
+
+},{"./components/component-projects":4}],6:[function(require,module,exports){
 const EventEmitter = require('events');
 const myEmittor = () => Object.assign({}, EventEmitter.prototype)
 
 module.exports = myEmittor()
-},{"events":9}],5:[function(require,module,exports){
-const eventActions = (function() {
+},{"events":11}],7:[function(require,module,exports){
+function eventActions() {
   /**
    *
    * @param {string} selector
    * @param {function} callback
    */
-  const addBatchEvent = function(selector, callback) {
-    const deleteButtons = document.querySelectorAll(selector)
-    console.log(deleteButtons)
-    deleteButtons.forEach( button => {
+  function addBatchEvent(selector, callback) {
+    const buttons = document.querySelectorAll(selector);
+    buttons.forEach((button) => {
       button.addEventListener('click', (event) => {
-        callback(button)
-      })
-    })
+        callback(button);
+      });
+    });
+  }
 
+  function addEvent(selector, callback) {
+    const button = document.querySelector(selector);
+    button.addEventListener('click', (event) => {
+      callback(button);
+    });
   }
 
   return {
-    addBatchEvent
-  }
-})()
+    addBatchEvent,
+    addEvent,
+  };
+}
 
-module.exports = eventActions
-},{}],6:[function(require,module,exports){
+module.exports = eventActions();
+
+},{}],8:[function(require,module,exports){
 /**
  *
  * @param {string} name project's name
  * @param {string} description project's description
  * @param {number} priority project's priority 1 = high, 2 = medium, 3 = low
  */
-const Project = function(name, description, priority) {
+function Project(name, description, priority) {
   return {
     id: null,
     name,
     description,
-    priority
-  }
+    priority,
+  };
 }
 
-module.exports = Project
-},{}],7:[function(require,module,exports){
-const Projects = function(){
-  let ID = 3
-  const allProject = {
-    1: {
-      id: 1,
-      name: 'Home',
-      description: "All todos about home",
-      priority: 1,
-      todos: [1]
-    },
-    2: {
-      id: 2,
-      name: 'Work',
-      description: "All todos about work",
-      priority: 2,
-      todos: []
-    },
-    3: {
-      id: 3,
-      name: 'Others',
-      description: "All others todos",
-      priority: 3,
-      todos: []
-    }
+module.exports = Project;
+
+},{}],9:[function(require,module,exports){
+function Projects(initialState) {
+  let ID = 3;
+  const allProject = initialState || {};
+
+
+  function state() {
+    return allProject;
   }
 
-
-  const state = function() {
-    return allProject
-  }
-
-  const add = function(project) {
-    project.id = ++ID
-    allProject[ID] = project
-    return true
+  function add(project) {
+    ID += 1;
+    project.id = ID;
+    allProject[ID] = project;
+    return true;
   }
 
   /**
    *
    * @param {number} id project's id
    */
-  const remove = function(id) {
-    delete allProject[id]
+  function remove(id) {
+    delete allProject[id];
   }
 
   return {
     state,
     add,
-    remove
-  }
+    remove,
+  };
 }
 
-module.exports = Projects
-},{}],8:[function(require,module,exports){
-const Storage = (function() {
+module.exports = Projects;
 
-  const save = function(allProjects) {
-    data = JSON.stringify(allProjects)
-    window.localStorage.setItem('projects', data)
+},{}],10:[function(require,module,exports){
+function Storage() {
+  /**
+   *
+   * @param {object} allProjects Projects object
+   */
+  function save(allProjects) {
+    const data = JSON.stringify(allProjects);
+    window.localStorage.setItem('projects', data);
   }
 
-  const load = function() {
+  function load() {
 
   }
 
   return {
     save,
-    load
-  }
-})()
+    load,
+  };
+}
 
-module.exports = Storage
-},{}],9:[function(require,module,exports){
+module.exports = Storage();
+
+},{}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

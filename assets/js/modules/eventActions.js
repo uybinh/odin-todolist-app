@@ -1,23 +1,29 @@
-const eventActions = (function() {
+function eventActions() {
   /**
    *
    * @param {string} selector
    * @param {function} callback
    */
-  const addBatchEvent = function(selector, callback) {
-    const deleteButtons = document.querySelectorAll(selector)
-    console.log(deleteButtons)
-    deleteButtons.forEach( button => {
+  function addBatchEvent(selector, callback) {
+    const buttons = document.querySelectorAll(selector);
+    buttons.forEach((button) => {
       button.addEventListener('click', (event) => {
-        callback(button)
-      })
-    })
+        callback(button);
+      });
+    });
+  }
 
+  function addEvent(selector, callback) {
+    const button = document.querySelector(selector);
+    button.addEventListener('click', (event) => {
+      callback(button);
+    });
   }
 
   return {
-    addBatchEvent
-  }
-})()
+    addBatchEvent,
+    addEvent,
+  };
+}
 
-module.exports = eventActions
+module.exports = eventActions();

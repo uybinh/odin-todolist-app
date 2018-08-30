@@ -1,39 +1,31 @@
-const projectComponent = function(projects) {
+const projectComponent = require('./component-project');
 
-  const createLi = (project) => {
-    const li = document.createElement('li')
-    li.dataset.id = project.id
-    li.dataset.type = 'project'
-    li.textContent = project.name
-    li.innerHTML += `
-    <span class='btn-delete' data-type='projects' data-id='${project.id}'>
-      <i class="fa fa-trash" aria-hidden="true"></i>
-    </span>`
-    return li
-  }
 
-  const createUl = (projects) => {
-    const ul = document.createElement('ul')
-    ul.classList.add('list')
-    for (let id in projects) {
-      ul.appendChild(createLi(projects[id]))
+function projectsComponent(projects) {
+  function createUl(projects) {
+    const ul = document.createElement('ul');
+    ul.id = 'projects-list';
+    ul.classList.add('list');
+    for (const id in projects) {
+      console.log(projects);
+      const projectElement = projectComponent(projects[id]);
+      ul.appendChild(projectElement);
     }
-    return ul
+    return ul;
   }
 
-  const projectsElement = document.createElement('div')
-  projectsElement.id = 'projects'
-  projectsElement.classList.add('container', 'projects')
+  const projectsElement = document.createElement('div');
+  projectsElement.id = 'projects';
+  projectsElement.classList.add('container', 'projects');
   projectsElement.innerHTML += `
     <header>
       <h1>Projects</h1>
-      <button> Add </button>
+      <button id='btn-new-project'> Add </button>
     </header>
-  `
-  projectsElement.appendChild(createUl(projects))
+  `;
+  projectsElement.appendChild(createUl(projects));
 
-  return projectsElement
-
+  return projectsElement;
 }
 
-module.exports = projectComponent
+module.exports = projectsComponent;

@@ -1,39 +1,53 @@
-const emittor = require("./modules/emittor")
-const Storage = require("./modules/storage")
-const DOMActions = require('./modules/domactions')
-const Projects = require("./modules/projects")
-const Project = require("./modules/project")
-const eventActions = require("./modules/eventActions")
+const emittor = require('./modules/emittor');
+const Storage = require('./modules/storage');
+const DOMActions = require('./modules/domactions');
+const Projects = require('./modules/projects');
+const Project = require('./modules/project');
+const eventActions = require('./modules/eventActions');
+const projectsComponent = require('./modules/components/component-projects');
+const projectComponent = require('./modules/components/component-project');
+const newProjectComponent = require('./modules/components/component-new-project');
 
 
+document.addEventListener('DOMContentLoaded', () => {
+  const initialState = {
+    1: {
+      id: 1,
+      name: 'Home',
+      description: 'All todos about home',
+      priority: 1,
+      todos: [1],
+    },
+    2: {
+      id: 2,
+      name: 'Work',
+      description: 'All todos about work',
+      priority: 2,
+      todos: [],
+    },
+    3: {
+      id: 3,
+      name: 'Others',
+      description: 'All others todos',
+      priority: 3,
+      todos: [],
+    },
+  };
+  const allProjects = Projects(initialState);
+  const projectsElement = projectsComponent(allProjects.state());
+  DOMActions.render('body', projectsElement);
 
-document.addEventListener('DOMContentLoaded', function(){
+  const newProject = Project(
+    'School',
+    'School works',
+    3,
+  );
 
 
-  emittor.on('save project', function(allProjects){
-    DOMActions.renderProjects(allProjects.state())
+  const newProjectElement = projectComponent(newProject);
 
-    eventActions.addBatchEvent(`span.btn-delete[data-type='projects']`,
-      function(button){
-        DOMActions.removeElement('span','project', button.dataset.id)
-        emittor.emit('delete project', button.dataset.id )
-      }
-    )
-
-    Storage.save(allProjects.state())
-  })
-
-  emittor.on('delete project', (id) => {
-    allProjects.remove(id)
-    Storage.save(allProjects.state())
-  })
-
-  const schoolProject = Project(
-    "School",
-    "School todos",
-    2
-  )
-  const allProjects = Projects()
-  allProjects.add(schoolProject)
-  emittor.emit('save project', allProjects)
-})
+  eventActions.addEvent('#btn-new-project', () => {
+    const newProjectContainer = newProjectComponent();
+    DOMActions.render('body', newProjectContainer);
+  });
+});

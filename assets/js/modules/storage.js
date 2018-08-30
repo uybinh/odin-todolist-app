@@ -1,18 +1,21 @@
-const Storage = (function() {
-
-  const save = function(allProjects) {
-    data = JSON.stringify(allProjects)
-    window.localStorage.setItem('projects', data)
+function Storage() {
+  /**
+   *
+   * @param {object} allProjects Projects object
+   */
+  function save(allProjects) {
+    const data = JSON.stringify(allProjects);
+    window.localStorage.setItem('projects', data);
   }
 
-  const load = function() {
+  function load() {
 
   }
 
   return {
     save,
-    load
-  }
-})()
+    load,
+  };
+}
 
-module.exports = Storage
+module.exports = Storage();
