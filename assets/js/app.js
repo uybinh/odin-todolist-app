@@ -11,7 +11,7 @@ const formHandler = require('./modules/form-handler');
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  const initialState = {
+  let initialState = {
     1: {
       id: 1,
       name: 'Home',
@@ -34,6 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
       todos: [],
     },
   };
+
+  if (window.localStorage.getItem('projects')) {
+    initialState = Storage.load('projects');
+  }
+
   const allProjects = Projects(initialState);
   const projectsElement = projectsComponent(allProjects.state());
   DOMActions.render('body', projectsElement);

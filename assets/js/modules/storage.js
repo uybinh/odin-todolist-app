@@ -8,8 +8,9 @@ function Storage() {
     window.localStorage.setItem('projects', data);
   }
 
-  function load() {
-
+  function load(key) {
+    const data = window.localStorage.getItem(key);
+    return JSON.parse(data);
   }
 
   return {
