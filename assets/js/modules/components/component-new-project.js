@@ -1,4 +1,6 @@
 function newProjectComponent() {
+  const wrapper = document.createElement('div');
+  wrapper.id = 'new-project-wrapper';
   const element = document.createElement('div');
   element.id = 'new-project';
   element.classList.add('container');
@@ -7,7 +9,7 @@ function newProjectComponent() {
 
   <header>
     <h1>New Project</h1>
-    <button> Create </button>
+    <button id='btn-create-project'> Create </button>
   </header>
 
   <ul>
@@ -21,17 +23,17 @@ function newProjectComponent() {
       <p>Priority</p>
       <div class="flex">
         <div class="field-group">
-          <input type="radio" name="priority-level" id="high-priority" value="1">
+          <input type="radio" name="project-priority" id="high-priority" value="1">
           <label for="high-priority"> High</label>
         </div>
 
         <div class="field-group">
-          <input type="radio" name="priority-level" id="medium-priority" value="2">
+          <input type="radio" name="project-priority" id="medium-priority" value="2">
           <label for="medium-priority">Medium</label>
         </div>
 
         <div class="field-group">
-          <input type="radio" name="priority-level" id="low-priority" value="3">
+          <input type="radio" name="project-priority" id="low-priority" value="3">
           <label for="low-priority">Low</label>
         </div>
       </div>
@@ -39,7 +41,8 @@ function newProjectComponent() {
   </ul>
   </form>
   `;
-  return element;
+  wrapper.appendChild(element);
+  return wrapper;
 }
 
 module.exports = newProjectComponent;

@@ -8,6 +8,7 @@ const eventActions = require('./modules/eventActions');
 const projectsComponent = require('./modules/components/component-projects');
 const projectComponent = require('./modules/components/component-project');
 const newProjectComponent = require('./modules/components/component-new-project');
+const formHandler = require('./modules/form-handler');
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,23 +39,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const projectsElement = projectsComponent(allProjects.state());
   DOMActions.render('body', projectsElement);
 
-  const newProject = Project(
-    'School',
-    'School works',
-    3,
-  );
-
-
-  const newProjectElement = projectComponent(newProject);
-
-  eventActions.addEvent('#btn-new-project', () => {
+  emittor.on('add new project', () => {
     const newProjectContainer = newProjectComponent();
     DOMActions.render('body', newProjectContainer);
+
+    eventActions.addClickEventTo('#btn-create-project', () => {
+      const { name, description, priority } = formHandler
+        .getProjectData('#new-pj-form');
+      const newProject = Project(name, description, priority);
+      const newProjectElement = projectComponent(newProject);
+      DOMActions.render('#projects-list', newProjectElement);
+      allProjects.add(newProject);
+      Storage.save(allProjects.state());
+      DOMActions.removeWithSelector('#new-project-wrapper');
+    });
+  });
+
+  eventActions.addClickEventTo('#btn-new-project', () => {
+    emittor.emit('add new project');
   });
 });
 
-},{"./modules/components/component-new-project":2,"./modules/components/component-project":3,"./modules/components/component-projects":4,"./modules/domactions":5,"./modules/emittor":6,"./modules/eventActions":7,"./modules/project":8,"./modules/projects":9,"./modules/storage":10}],2:[function(require,module,exports){
+},{"./modules/components/component-new-project":2,"./modules/components/component-project":3,"./modules/components/component-projects":4,"./modules/domactions":5,"./modules/emittor":6,"./modules/eventActions":7,"./modules/form-handler":8,"./modules/project":9,"./modules/projects":10,"./modules/storage":11}],2:[function(require,module,exports){
 function newProjectComponent() {
+  const wrapper = document.createElement('div');
+  wrapper.id = 'new-project-wrapper';
   const element = document.createElement('div');
   element.id = 'new-project';
   element.classList.add('container');
@@ -63,7 +72,7 @@ function newProjectComponent() {
 
   <header>
     <h1>New Project</h1>
-    <button> Create </button>
+    <button id='btn-create-project'> Create </button>
   </header>
 
   <ul>
@@ -77,17 +86,17 @@ function newProjectComponent() {
       <p>Priority</p>
       <div class="flex">
         <div class="field-group">
-          <input type="radio" name="priority-level" id="high-priority" value="1">
+          <input type="radio" name="project-priority" id="high-priority" value="1">
           <label for="high-priority"> High</label>
         </div>
 
         <div class="field-group">
-          <input type="radio" name="priority-level" id="medium-priority" value="2">
+          <input type="radio" name="project-priority" id="medium-priority" value="2">
           <label for="medium-priority">Medium</label>
         </div>
 
         <div class="field-group">
-          <input type="radio" name="priority-level" id="low-priority" value="3">
+          <input type="radio" name="project-priority" id="low-priority" value="3">
           <label for="low-priority">Low</label>
         </div>
       </div>
@@ -95,7 +104,8 @@ function newProjectComponent() {
   </ul>
   </form>
   `;
-  return element;
+  wrapper.appendChild(element);
+  return wrapper;
 }
 
 module.exports = newProjectComponent;
@@ -165,7 +175,7 @@ function DOMActions() {
    * @param {string} type data-type attribute of element
    * @param {number} id data-id attribute of elemtn
    */
-  function selectElement(elementType, type, id) {
+  function selectWithParams(elementType, type, id) {
     return document.querySelector(`[data-type='${type}'][data-id='${id}']`);
   }
 
@@ -175,18 +185,28 @@ function DOMActions() {
    * @param {string} type data-type attribute of element
    * @param {number} id data-id attribute of elemtn
    */
-  const removeElement = (elementType, type, id) => {
-    const element = selectElement(elementType, type, id);
+  const removeWithParams = (elementType, type, id) => {
+    const element = selectWithParams(elementType, type, id);
     element.parentElement.removeChild(element);
   };
 
   /**
    *
-   * @param {object} projects Projects object
+   * @param {string} parentElement pattern to select parent element
+   * @param {object} element project element
    */
   function render(parentElement, element) {
     const parent = document.querySelector(parentElement);
     parent.appendChild(element);
+  }
+
+  /**
+   *
+   * @param {string} selector pattern to select element
+   */
+  function removeWithSelector(selector) {
+    const element = document.querySelector(selector);
+    element.parentElement.removeChild(element);
   }
 
   function renderTodos() {
@@ -211,8 +231,9 @@ function DOMActions() {
 
 
   return {
-    selectElement,
-    removeElement,
+    selectWithParams,
+    removeWithParams,
+    removeWithSelector,
     render,
     renderTodos,
   };
@@ -225,7 +246,7 @@ const EventEmitter = require('events');
 const myEmittor = () => Object.assign({}, EventEmitter.prototype)
 
 module.exports = myEmittor()
-},{"events":11}],7:[function(require,module,exports){
+},{"events":12}],7:[function(require,module,exports){
 function eventActions() {
   /**
    *
@@ -236,27 +257,50 @@ function eventActions() {
     const buttons = document.querySelectorAll(selector);
     buttons.forEach((button) => {
       button.addEventListener('click', (event) => {
+        event.preventDefault();
         callback(button);
       });
     });
   }
 
-  function addEvent(selector, callback) {
+  function addClickEventTo(selector, callback) {
     const button = document.querySelector(selector);
     button.addEventListener('click', (event) => {
+      event.preventDefault();
       callback(button);
     });
   }
 
   return {
     addBatchEvent,
-    addEvent,
+    addClickEventTo,
   };
 }
 
 module.exports = eventActions();
 
 },{}],8:[function(require,module,exports){
+function formHandler() {
+  function getProjectData(formSelector) {
+    const form = document.querySelector(formSelector);
+    const name = form.elements['project-name'].value;
+    const description = form.elements['project-description'].value;
+    const priority = form.elements['project-priority'].value;
+    return {
+      name,
+      description,
+      priority,
+    };
+  }
+
+  return {
+    getProjectData,
+  };
+}
+
+module.exports = formHandler();
+
+},{}],9:[function(require,module,exports){
 /**
  *
  * @param {string} name project's name
@@ -274,7 +318,7 @@ function Project(name, description, priority) {
 
 module.exports = Project;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 function Projects(initialState) {
   let ID = 3;
   const allProject = initialState || {};
@@ -308,7 +352,7 @@ function Projects(initialState) {
 
 module.exports = Projects;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 function Storage() {
   /**
    *
@@ -331,7 +375,7 @@ function Storage() {
 
 module.exports = Storage();
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

@@ -7,6 +7,7 @@ const eventActions = require('./modules/eventActions');
 const projectsComponent = require('./modules/components/component-projects');
 const projectComponent = require('./modules/components/component-project');
 const newProjectComponent = require('./modules/components/component-new-project');
+const formHandler = require('./modules/form-handler');
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -37,17 +38,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const projectsElement = projectsComponent(allProjects.state());
   DOMActions.render('body', projectsElement);
 
-  const newProject = Project(
-    'School',
-    'School works',
-    3,
-  );
-
-
-  const newProjectElement = projectComponent(newProject);
-
-  eventActions.addEvent('#btn-new-project', () => {
+  emittor.on('add new project', () => {
     const newProjectContainer = newProjectComponent();
     DOMActions.render('body', newProjectContainer);
+
+    eventActions.addClickEventTo('#btn-create-project', () => {
+      const { name, description, priority } = formHandler
+        .getProjectData('#new-pj-form');
+      const newProject = Project(name, description, priority);
+      const newProjectElement = projectComponent(newProject);
+      DOMActions.render('#projects-list', newProjectElement);
+      allProjects.add(newProject);
+      Storage.save(allProjects.state());
+      DOMActions.removeWithSelector('#new-project-wrapper');
+    });
+  });
+
+  eventActions.addClickEventTo('#btn-new-project', () => {
+    emittor.emit('add new project');
   });
 });

@@ -10,7 +10,7 @@ function DOMActions() {
    * @param {string} type data-type attribute of element
    * @param {number} id data-id attribute of elemtn
    */
-  function selectElement(elementType, type, id) {
+  function selectWithParams(elementType, type, id) {
     return document.querySelector(`[data-type='${type}'][data-id='${id}']`);
   }
 
@@ -20,18 +20,28 @@ function DOMActions() {
    * @param {string} type data-type attribute of element
    * @param {number} id data-id attribute of elemtn
    */
-  const removeElement = (elementType, type, id) => {
-    const element = selectElement(elementType, type, id);
+  const removeWithParams = (elementType, type, id) => {
+    const element = selectWithParams(elementType, type, id);
     element.parentElement.removeChild(element);
   };
 
   /**
    *
-   * @param {object} projects Projects object
+   * @param {string} parentElement pattern to select parent element
+   * @param {object} element project element
    */
   function render(parentElement, element) {
     const parent = document.querySelector(parentElement);
     parent.appendChild(element);
+  }
+
+  /**
+   *
+   * @param {string} selector pattern to select element
+   */
+  function removeWithSelector(selector) {
+    const element = document.querySelector(selector);
+    element.parentElement.removeChild(element);
   }
 
   function renderTodos() {
@@ -56,8 +66,9 @@ function DOMActions() {
 
 
   return {
-    selectElement,
-    removeElement,
+    selectWithParams,
+    removeWithParams,
+    removeWithSelector,
     render,
     renderTodos,
   };
