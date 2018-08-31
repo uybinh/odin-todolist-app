@@ -1,6 +1,9 @@
 function Projects(initialState) {
   const allProject = initialState || {};
 
+  /**
+   * Return how many projects
+   */
   function count() {
     return Object.keys(allProject).length;
   }
@@ -23,7 +26,6 @@ function Projects(initialState) {
   function remove(id) {
     delete allProject[id];
   }
-
 
   return {
     state,

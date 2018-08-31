@@ -17,9 +17,25 @@ const todoApp = () => {
     initialState = Storage.load('projects');
   }
 
+
   const allProjects = Projects(initialState);
   const projectsElement = projectsComponent(allProjects.state());
   DOMActions.render('body', projectsElement);
+
+  eventActions.addBatchEvent('.btn-delete', (button) => {
+    emittor.emit('delete project', button.dataset.id);
+  });
+
+  eventActions.addClickEventTo('#btn-new-project', () => {
+    emittor.emit('add new project');
+  });
+
+  emittor.on('delete project', (id) => {
+    allProjects.remove(id);
+    Storage.save('projects', allProjects.state());
+    DOMActions.removeWithParams('li',
+      'project', id);
+  });
 
   emittor.on('add new project', () => {
     const newProjectContainer = newProjectComponent();
@@ -34,10 +50,10 @@ const todoApp = () => {
       Storage.save('projects', allProjects.state());
       DOMActions.removeWithSelector('#new-project-wrapper');
     });
-  });
 
-  eventActions.addClickEventTo('#btn-new-project', () => {
-    emittor.emit('add new project');
+    eventActions.addClickEventTo('#btn-close', () => {
+      DOMActions.removeWithSelector('#new-project-wrapper');
+    });
   });
 };
 

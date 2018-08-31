@@ -18,9 +18,25 @@ const todoApp = () => {
     initialState = Storage.load('projects');
   }
 
+
   const allProjects = Projects(initialState);
   const projectsElement = projectsComponent(allProjects.state());
   DOMActions.render('body', projectsElement);
+
+  eventActions.addBatchEvent('.btn-delete', (button) => {
+    emittor.emit('delete project', button.dataset.id);
+  });
+
+  eventActions.addClickEventTo('#btn-new-project', () => {
+    emittor.emit('add new project');
+  });
+
+  emittor.on('delete project', (id) => {
+    allProjects.remove(id);
+    Storage.save('projects', allProjects.state());
+    DOMActions.removeWithParams('li',
+      'project', id);
+  });
 
   emittor.on('add new project', () => {
     const newProjectContainer = newProjectComponent();
@@ -35,10 +51,10 @@ const todoApp = () => {
       Storage.save('projects', allProjects.state());
       DOMActions.removeWithSelector('#new-project-wrapper');
     });
-  });
 
-  eventActions.addClickEventTo('#btn-new-project', () => {
-    emittor.emit('add new project');
+    eventActions.addClickEventTo('#btn-close', () => {
+      DOMActions.removeWithSelector('#new-project-wrapper');
+    });
   });
 };
 
@@ -108,7 +124,7 @@ function projectComponent(project) {
     li.dataset.type = 'project';
     li.textContent = project.name;
     li.innerHTML += `
-    <span class='btn-delete' data-type='projects' data-id='${project.id}'>
+    <span class='btn-delete' data-type='project' data-id='${project.id}'>
       <i class="fa fa-trash" aria-hidden="true"></i>
     </span>`;
     return li;
@@ -165,7 +181,7 @@ function DOMActions() {
    * @param {number} id data-id attribute of elemtn
    */
   function selectWithParams(elementType, type, id) {
-    return document.querySelector(`[data-type='${type}'][data-id='${id}']`);
+    return document.querySelector(`[data-type='${type}'][data-id='${+id}']`);
   }
 
   /**
@@ -340,6 +356,9 @@ module.exports = Project;
 function Projects(initialState) {
   const allProject = initialState || {};
 
+  /**
+   * Return how many projects
+   */
   function count() {
     return Object.keys(allProject).length;
   }
@@ -362,7 +381,6 @@ function Projects(initialState) {
   function remove(id) {
     delete allProject[id];
   }
-
 
   return {
     state,

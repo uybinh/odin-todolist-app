@@ -11,7 +11,7 @@ function DOMActions() {
    * @param {number} id data-id attribute of elemtn
    */
   function selectWithParams(elementType, type, id) {
-    return document.querySelector(`[data-type='${type}'][data-id='${id}']`);
+    return document.querySelector(`[data-type='${type}'][data-id='${+id}']`);
   }
 
   /**
