@@ -41,13 +41,19 @@ const todoApp = () => {
   emittor.on('add new project', () => {
     const newProjectContainer = newProjectComponent();
     DOMActions.render('body', newProjectContainer);
+
     eventActions.addClickEventTo('#btn-create-project', () => {
       const { name, description, priority } = formHandler
         .getProjectData('#new-pj-form');
       const newProject = Project(name, description, priority);
-      const newProjectElement = projectComponent(newProject);
-      DOMActions.render('#projects-list', newProjectElement);
       allProjects.add(newProject);
+      const newProjectElement = projectComponent(newProject);
+
+      newProjectElement.onclick = () => {
+        DOMActions.removeWithParams('li', 'project', newProject.id);
+      };
+
+      DOMActions.render('#projects-list', newProjectElement);
       Storage.save('projects', allProjects.state());
       DOMActions.removeWithSelector('#new-project-wrapper');
     });
@@ -122,6 +128,7 @@ function projectComponent(project) {
     const li = document.createElement('li');
     li.dataset.id = project.id;
     li.dataset.type = 'project';
+    li.dataset.priority = project.priority;
     li.textContent = project.name;
     li.innerHTML += `
     <span class='btn-delete' data-type='project' data-id='${project.id}'>

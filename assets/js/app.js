@@ -17,7 +17,6 @@ const todoApp = () => {
     initialState = Storage.load('projects');
   }
 
-
   const allProjects = Projects(initialState);
   const projectsElement = projectsComponent(allProjects.state());
   DOMActions.render('body', projectsElement);
@@ -40,13 +39,19 @@ const todoApp = () => {
   emittor.on('add new project', () => {
     const newProjectContainer = newProjectComponent();
     DOMActions.render('body', newProjectContainer);
+
     eventActions.addClickEventTo('#btn-create-project', () => {
       const { name, description, priority } = formHandler
         .getProjectData('#new-pj-form');
       const newProject = Project(name, description, priority);
-      const newProjectElement = projectComponent(newProject);
-      DOMActions.render('#projects-list', newProjectElement);
       allProjects.add(newProject);
+      const newProjectElement = projectComponent(newProject);
+
+      newProjectElement.onclick = () => {
+        DOMActions.removeWithParams('li', 'project', newProject.id);
+      };
+
+      DOMActions.render('#projects-list', newProjectElement);
       Storage.save('projects', allProjects.state());
       DOMActions.removeWithSelector('#new-project-wrapper');
     });

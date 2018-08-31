@@ -3,6 +3,7 @@ function projectComponent(project) {
     const li = document.createElement('li');
     li.dataset.id = project.id;
     li.dataset.type = 'project';
+    li.dataset.priority = project.priority;
     li.textContent = project.name;
     li.innerHTML += `
     <span class='btn-delete' data-type='project' data-id='${project.id}'>

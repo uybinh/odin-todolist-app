@@ -95,6 +95,19 @@ form > ul {
     li:nth-child(even) {
       background: #f7f7f7;
     }
+
+    &[data-priority='1'] {
+      background-color: rgb(255, 108, 133);
+      color: white;
+    }
+    &[data-priority='2'] {
+      background-color: rgb(255, 228, 75);
+      color: rgb(51, 51, 51);
+    }
+    &[data-priority='3'] {
+      background-color: rgb(32, 236, 134);
+      color: rgb(51, 51, 51);
+    }
   }
 
 }
@@ -138,6 +151,8 @@ form > ul {
       width: auto;
       display: inline-block;
     }
+
+
   }
 
   li.priority {
@@ -150,6 +165,7 @@ form > ul {
     padding-right: 20px;
     height: auto;
   }
+
 
   input[type='text'] {
     font-size: 16px;
@@ -174,6 +190,17 @@ form > ul {
   display: flex;
   justify-content: space-between;
 }
+
+
+
+/*=============================================
+=            Project            =
+=============================================*/
+
+
+/*=====  End of Project ======*/
+
+
 
 
 /*=============================================
