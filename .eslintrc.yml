@@ -4,8 +4,8 @@ env:
   es6: true
   node: true
 extends:
-  - 'eslint:recommended'
-  - 'airbnb'
+  - "eslint:recommended"
+  - "airbnb"
 
 parserOptions:
   ecmaVersion: 2018
@@ -27,4 +27,5 @@ rules:
     - error
     - props: true
       ignorePropertyModificationsFor:
-        - 'project' # To assign project ID
+        - "project" # To assign project ID
+        - "item" # To assign todo ID

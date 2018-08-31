@@ -3,22 +3,32 @@ const Storage = require('./modules/storage');
 const DOMActions = require('./modules/domactions');
 const Projects = require('./modules/projects');
 const Project = require('./modules/project');
+const Todos = require('./modules/todos');
+// const Todo = require('./modules/todo');
 const eventActions = require('./modules/eventActions');
-const projectsComponent = require('./modules/components/component-projects');
-const projectComponent = require('./modules/components/component-project');
-const newProjectComponent = require('./modules/components/component-new-project');
+const componentProjects = require('./modules/components/component-projects');
+const componentProject = require('./modules/components/component-project');
+const componentNewProject = require('./modules/components/component-new-project');
+const componentTodos = require('./modules/components/component-todos');
 const formHandler = require('./modules/form-handler');
 const initialData = require('./modules/initial-data');
 
 const todoApp = () => {
-  let initialState = initialData;
+  let initialProjects = initialData.projects;
+  let initialTodos = initialData.todos;
 
   if (window.localStorage.getItem('projects')) {
-    initialState = Storage.load('projects');
+    initialProjects = Storage.load('projects');
   }
 
-  const allProjects = Projects(initialState);
-  const projectsElement = projectsComponent(allProjects.state());
+  if (window.localStorage.getItem('todos')) {
+    initialTodos = Storage.load('todos');
+  }
+
+  const allProjects = Projects(initialProjects);
+  const allTodos = Todos(initialTodos);
+  const projectsElement = componentProjects(allProjects.state());
+  const todosElement = componentTodos(allTodos.state());
   DOMActions.render('body', projectsElement);
 
   eventActions.addBatchEvent('.btn-delete', (button) => {
@@ -32,20 +42,18 @@ const todoApp = () => {
   emittor.on('delete project', (id) => {
     allProjects.remove(id);
     Storage.save('projects', allProjects.state());
-    DOMActions.removeWithParams('li',
-      'project', id);
+    DOMActions.removeWithParams('li', 'project', id);
   });
 
   emittor.on('add new project', () => {
-    const newProjectContainer = newProjectComponent();
+    const newProjectContainer = componentNewProject();
     DOMActions.render('body', newProjectContainer);
 
     eventActions.addClickEventTo('#btn-create-project', () => {
-      const { name, description, priority } = formHandler
-        .getProjectData('#new-pj-form');
+      const { name, description, priority } = formHandler.getProjectData('#new-pj-form');
       const newProject = Project(name, description, priority);
       allProjects.add(newProject);
-      const newProjectElement = projectComponent(newProject);
+      const newProjectElement = componentProject(newProject);
 
       newProjectElement.onclick = () => {
         DOMActions.removeWithParams('li', 'project', newProject.id);
@@ -60,6 +68,8 @@ const todoApp = () => {
       DOMActions.removeWithSelector('#new-project-wrapper');
     });
   });
+
+  DOMActions.render('body', todosElement);
 };
 
 document.addEventListener('DOMContentLoaded', () => {

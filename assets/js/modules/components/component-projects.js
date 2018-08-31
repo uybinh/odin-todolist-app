@@ -1,5 +1,4 @@
-const projectComponent = require('./component-project');
-
+const componentProject = require('./component-project');
 
 function projectsComponent(projects) {
   function createUl(projects) {
@@ -7,7 +6,7 @@ function projectsComponent(projects) {
     ul.id = 'projects-list';
     ul.classList.add('list');
     for (const id in projects) {
-      const projectElement = projectComponent(projects[id]);
+      const projectElement = componentProject(projects[id]);
       ul.appendChild(projectElement);
     }
     return ul;

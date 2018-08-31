@@ -1,5 +1,5 @@
 function initialData() {
-  return {
+  const projects = {
     1: {
       id: 1,
       name: 'Home',
@@ -22,6 +22,24 @@ function initialData() {
       todos: [],
     },
   };
+  const todos = {
+    1: {
+      id: 1,
+      name: 'Go to school',
+      description: '',
+      priority: 1,
+      project: 1,
+    },
+    2: {
+      id: 2,
+      name: 'Go to cinema',
+      description: '',
+      priority: 2,
+      project: 2,
+    },
+  };
+
+  return { projects, todos };
 }
 
 module.exports = initialData();

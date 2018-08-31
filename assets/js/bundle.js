@@ -4,23 +4,32 @@ const Storage = require('./modules/storage');
 const DOMActions = require('./modules/domactions');
 const Projects = require('./modules/projects');
 const Project = require('./modules/project');
+const Todos = require('./modules/todos');
+// const Todo = require('./modules/todo');
 const eventActions = require('./modules/eventActions');
-const projectsComponent = require('./modules/components/component-projects');
-const projectComponent = require('./modules/components/component-project');
-const newProjectComponent = require('./modules/components/component-new-project');
+const componentProjects = require('./modules/components/component-projects');
+const componentProject = require('./modules/components/component-project');
+const componentNewProject = require('./modules/components/component-new-project');
+const componentTodos = require('./modules/components/component-todos');
 const formHandler = require('./modules/form-handler');
 const initialData = require('./modules/initial-data');
 
 const todoApp = () => {
-  let initialState = initialData;
+  let initialProjects = initialData.projects;
+  let initialTodos = initialData.todos;
 
   if (window.localStorage.getItem('projects')) {
-    initialState = Storage.load('projects');
+    initialProjects = Storage.load('projects');
   }
 
+  if (window.localStorage.getItem('todos')) {
+    initialTodos = Storage.load('todos');
+  }
 
-  const allProjects = Projects(initialState);
-  const projectsElement = projectsComponent(allProjects.state());
+  const allProjects = Projects(initialProjects);
+  const allTodos = Todos(initialTodos);
+  const projectsElement = componentProjects(allProjects.state());
+  const todosElement = componentTodos(allTodos.state());
   DOMActions.render('body', projectsElement);
 
   eventActions.addBatchEvent('.btn-delete', (button) => {
@@ -34,20 +43,18 @@ const todoApp = () => {
   emittor.on('delete project', (id) => {
     allProjects.remove(id);
     Storage.save('projects', allProjects.state());
-    DOMActions.removeWithParams('li',
-      'project', id);
+    DOMActions.removeWithParams('li', 'project', id);
   });
 
   emittor.on('add new project', () => {
-    const newProjectContainer = newProjectComponent();
+    const newProjectContainer = componentNewProject();
     DOMActions.render('body', newProjectContainer);
 
     eventActions.addClickEventTo('#btn-create-project', () => {
-      const { name, description, priority } = formHandler
-        .getProjectData('#new-pj-form');
+      const { name, description, priority } = formHandler.getProjectData('#new-pj-form');
       const newProject = Project(name, description, priority);
       allProjects.add(newProject);
-      const newProjectElement = projectComponent(newProject);
+      const newProjectElement = componentProject(newProject);
 
       newProjectElement.onclick = () => {
         DOMActions.removeWithParams('li', 'project', newProject.id);
@@ -62,13 +69,15 @@ const todoApp = () => {
       DOMActions.removeWithSelector('#new-project-wrapper');
     });
   });
+
+  DOMActions.render('body', todosElement);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   todoApp();
 });
 
-},{"./modules/components/component-new-project":2,"./modules/components/component-project":3,"./modules/components/component-projects":4,"./modules/domactions":5,"./modules/emittor":6,"./modules/eventActions":7,"./modules/form-handler":8,"./modules/initial-data":9,"./modules/project":10,"./modules/projects":11,"./modules/storage":12}],2:[function(require,module,exports){
+},{"./modules/components/component-new-project":2,"./modules/components/component-project":3,"./modules/components/component-projects":4,"./modules/components/component-todos":6,"./modules/domactions":7,"./modules/emittor":8,"./modules/eventActions":9,"./modules/form-handler":10,"./modules/initial-data":11,"./modules/project":12,"./modules/projects":13,"./modules/storage":14,"./modules/todos":15}],2:[function(require,module,exports){
 function newProjectComponent() {
   const wrapper = document.createElement('div');
   wrapper.id = 'new-project-wrapper';
@@ -143,8 +152,7 @@ function projectComponent(project) {
 module.exports = projectComponent;
 
 },{}],4:[function(require,module,exports){
-const projectComponent = require('./component-project');
-
+const componentProject = require('./component-project');
 
 function projectsComponent(projects) {
   function createUl(projects) {
@@ -152,7 +160,7 @@ function projectsComponent(projects) {
     ul.id = 'projects-list';
     ul.classList.add('list');
     for (const id in projects) {
-      const projectElement = projectComponent(projects[id]);
+      const projectElement = componentProject(projects[id]);
       ul.appendChild(projectElement);
     }
     return ul;
@@ -175,8 +183,72 @@ function projectsComponent(projects) {
 module.exports = projectsComponent;
 
 },{"./component-project":3}],5:[function(require,module,exports){
-const projectComponent = require('./components/component-projects');
+function todoComponent(item) {
+  function createLi(todo) {
+    const li = document.createElement('li');
+    li.dataset.id = todo.id;
+    li.dataset.type = 'todo';
+    li.dataset.priority = todo.priority;
+    li.textContent = todo.name;
+    li.innerHTML += `
+    <span class='btn-delete' data-type='todo' data-id='${todo.id}'>
+      <i class="fa fa-trash" aria-hidden="true"></i>
+    </span>`;
+    return li;
+  }
 
+  return createLi(item);
+}
+
+module.exports = todoComponent;
+
+},{}],6:[function(require,module,exports){
+const componentTodo = require('./component-todo');
+
+function componentTodos(todos) {
+  function createUl(todos) {
+    const ul = document.createElement('ul');
+    ul.id = 'todos-list';
+    ul.classList.add('list');
+    for (const id in todos) {
+      const todoElement = componentTodo(todos[id]);
+      ul.appendChild(todoElement);
+    }
+    return ul;
+  }
+
+  const todosElement = document.createElement('div');
+  todosElement.id = 'todos';
+  todosElement.classList.add('container', 'todos');
+  todosElement.innerHTML += `
+    <header>
+      <h1>Todos</h1>
+      <button id='btn-new-todo'> Add </button>
+    </header>
+  `;
+  todosElement.appendChild(createUl(todos));
+
+  return todosElement;
+}
+
+module.exports = componentTodos;
+// const content = `
+// <div class="container todos">
+// <header>
+//   <h1>To-Do</h1>
+//   <button> Add </button>
+// </header>
+
+// <ul class="list">
+//   <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Go to School</li>
+//   <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Buy eggs</li>
+//   <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Visit Grandma</li>
+// </ul>
+
+// </div>
+// `;
+
+},{"./component-todo":5}],7:[function(require,module,exports){
 /**
  * * Functions for DOM manipulation
  */
@@ -221,44 +293,22 @@ function DOMActions() {
     element.parentElement.removeChild(element);
   }
 
-  function renderTodos() {
-    const content = `
-    <div class="container todos">
-    <header>
-      <h1>To-Do</h1>
-      <button> Add </button>
-    </header>
-
-    <ul class="list">
-      <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Go to School</li>
-      <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Buy eggs</li>
-      <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Visit Grandma</li>
-    </ul>
-
-  </div>
-    `;
-
-    document.body.innerHTML += content;
-  }
-
-
   return {
     selectWithParams,
     removeWithParams,
     removeWithSelector,
     render,
-    renderTodos,
   };
 }
 
 module.exports = DOMActions();
 
-},{"./components/component-projects":4}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const EventEmitter = require('events');
 const myEmittor = () => Object.assign({}, EventEmitter.prototype)
 
 module.exports = myEmittor()
-},{"events":13}],7:[function(require,module,exports){
+},{"events":16}],9:[function(require,module,exports){
 function eventActions() {
   /**
    *
@@ -291,7 +341,7 @@ function eventActions() {
 
 module.exports = eventActions();
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 function formHandler() {
   function getProjectData(formSelector) {
     const form = document.querySelector(formSelector);
@@ -312,9 +362,9 @@ function formHandler() {
 
 module.exports = formHandler();
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 function initialData() {
-  return {
+  const projects = {
     1: {
       id: 1,
       name: 'Home',
@@ -337,11 +387,29 @@ function initialData() {
       todos: [],
     },
   };
+  const todos = {
+    1: {
+      id: 1,
+      name: 'Go to school',
+      description: '',
+      priority: 1,
+      project: 1,
+    },
+    2: {
+      id: 2,
+      name: 'Go to cinema',
+      description: '',
+      priority: 2,
+      project: 2,
+    },
+  };
+
+  return { projects, todos };
 }
 
 module.exports = initialData();
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /**
  *
  * @param {string} name project's name
@@ -359,7 +427,7 @@ function Project(name, description, priority) {
 
 module.exports = Project;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 function Projects(initialState) {
   const allProject = initialState || {};
 
@@ -399,7 +467,7 @@ function Projects(initialState) {
 
 module.exports = Projects;
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 function Storage() {
   /**
    *
@@ -423,7 +491,47 @@ function Storage() {
 
 module.exports = Storage();
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
+function Todos(initialState) {
+  const allTodos = initialState || {};
+
+  /**
+   * Return how many todos
+   */
+  function count() {
+    return Object.keys(allTodos).length;
+  }
+
+  function state() {
+    return allTodos;
+  }
+
+  function add(item) {
+    const ID = count() + 1;
+    item.id = ID;
+    allTodos[ID] = item;
+    return true;
+  }
+
+  /**
+   *
+   * @param {number} id project's id
+   */
+  function remove(id) {
+    delete allTodos[id];
+  }
+
+  return {
+    state,
+    add,
+    remove,
+    count,
+  };
+}
+
+module.exports = Todos;
+
+},{}],16:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
