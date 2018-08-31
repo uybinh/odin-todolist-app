@@ -9,32 +9,10 @@ const projectsComponent = require('./modules/components/component-projects');
 const projectComponent = require('./modules/components/component-project');
 const newProjectComponent = require('./modules/components/component-new-project');
 const formHandler = require('./modules/form-handler');
+const initialData = require('./modules/initial-data');
 
-
-document.addEventListener('DOMContentLoaded', () => {
-  let initialState = {
-    1: {
-      id: 1,
-      name: 'Home',
-      description: 'All todos about home',
-      priority: 1,
-      todos: [1],
-    },
-    2: {
-      id: 2,
-      name: 'Work',
-      description: 'All todos about work',
-      priority: 2,
-      todos: [],
-    },
-    3: {
-      id: 3,
-      name: 'Others',
-      description: 'All others todos',
-      priority: 3,
-      todos: [],
-    },
-  };
+const todoApp = () => {
+  let initialState = initialData;
 
   if (window.localStorage.getItem('projects')) {
     initialState = Storage.load('projects');
@@ -47,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
   emittor.on('add new project', () => {
     const newProjectContainer = newProjectComponent();
     DOMActions.render('body', newProjectContainer);
-
     eventActions.addClickEventTo('#btn-create-project', () => {
       const { name, description, priority } = formHandler
         .getProjectData('#new-pj-form');
@@ -55,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const newProjectElement = projectComponent(newProject);
       DOMActions.render('#projects-list', newProjectElement);
       allProjects.add(newProject);
-      Storage.save(allProjects.state());
+      Storage.save('projects', allProjects.state());
       DOMActions.removeWithSelector('#new-project-wrapper');
     });
   });
@@ -63,9 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
   eventActions.addClickEventTo('#btn-new-project', () => {
     emittor.emit('add new project');
   });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  todoApp();
 });
 
-},{"./modules/components/component-new-project":2,"./modules/components/component-project":3,"./modules/components/component-projects":4,"./modules/domactions":5,"./modules/emittor":6,"./modules/eventActions":7,"./modules/form-handler":8,"./modules/project":9,"./modules/projects":10,"./modules/storage":11}],2:[function(require,module,exports){
+},{"./modules/components/component-new-project":2,"./modules/components/component-project":3,"./modules/components/component-projects":4,"./modules/domactions":5,"./modules/emittor":6,"./modules/eventActions":7,"./modules/form-handler":8,"./modules/initial-data":9,"./modules/project":10,"./modules/projects":11,"./modules/storage":12}],2:[function(require,module,exports){
 function newProjectComponent() {
   const wrapper = document.createElement('div');
   wrapper.id = 'new-project-wrapper';
@@ -77,7 +58,6 @@ function newProjectComponent() {
 
   <header>
     <h1>New Project</h1>
-    <button id='btn-create-project'> Create </button>
   </header>
 
   <ul>
@@ -107,6 +87,11 @@ function newProjectComponent() {
       </div>
     </li>
   </ul>
+
+  <footer>
+    <button id='btn-close' class='btn-close'>Close</button>
+    <button id='btn-create-project'> Create </button>
+  </footer>
   </form>
   `;
   wrapper.appendChild(element);
@@ -144,7 +129,6 @@ function projectsComponent(projects) {
     ul.id = 'projects-list';
     ul.classList.add('list');
     for (const id in projects) {
-      console.log(projects);
       const projectElement = projectComponent(projects[id]);
       ul.appendChild(projectElement);
     }
@@ -251,7 +235,7 @@ const EventEmitter = require('events');
 const myEmittor = () => Object.assign({}, EventEmitter.prototype)
 
 module.exports = myEmittor()
-},{"events":12}],7:[function(require,module,exports){
+},{"events":13}],7:[function(require,module,exports){
 function eventActions() {
   /**
    *
@@ -306,6 +290,35 @@ function formHandler() {
 module.exports = formHandler();
 
 },{}],9:[function(require,module,exports){
+function initialData() {
+  return {
+    1: {
+      id: 1,
+      name: 'Home',
+      description: 'All todos about home',
+      priority: 1,
+      todos: [1],
+    },
+    2: {
+      id: 2,
+      name: 'Work',
+      description: 'All todos about work',
+      priority: 2,
+      todos: [],
+    },
+    3: {
+      id: 3,
+      name: 'Others',
+      description: 'All others todos',
+      priority: 3,
+      todos: [],
+    },
+  };
+}
+
+module.exports = initialData();
+
+},{}],10:[function(require,module,exports){
 /**
  *
  * @param {string} name project's name
@@ -323,18 +336,20 @@ function Project(name, description, priority) {
 
 module.exports = Project;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 function Projects(initialState) {
-  let ID = 3;
   const allProject = initialState || {};
 
+  function count() {
+    return Object.keys(allProject).length;
+  }
 
   function state() {
     return allProject;
   }
 
   function add(project) {
-    ID += 1;
+    const ID = count() + 1;
     project.id = ID;
     allProject[ID] = project;
     return true;
@@ -348,24 +363,26 @@ function Projects(initialState) {
     delete allProject[id];
   }
 
+
   return {
     state,
     add,
     remove,
+    count,
   };
 }
 
 module.exports = Projects;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 function Storage() {
   /**
    *
    * @param {object} allProjects Projects object
    */
-  function save(allProjects) {
+  function save(key, allProjects) {
     const data = JSON.stringify(allProjects);
-    window.localStorage.setItem('projects', data);
+    window.localStorage.setItem(key, data);
   }
 
   function load(key) {
@@ -381,7 +398,7 @@ function Storage() {
 
 module.exports = Storage();
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

@@ -7,7 +7,6 @@ function projectsComponent(projects) {
     ul.id = 'projects-list';
     ul.classList.add('list');
     for (const id in projects) {
-      console.log(projects);
       const projectElement = projectComponent(projects[id]);
       ul.appendChild(projectElement);
     }

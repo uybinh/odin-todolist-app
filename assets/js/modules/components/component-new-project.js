@@ -9,7 +9,6 @@ function newProjectComponent() {
 
   <header>
     <h1>New Project</h1>
-    <button id='btn-create-project'> Create </button>
   </header>
 
   <ul>
@@ -39,6 +38,11 @@ function newProjectComponent() {
       </div>
     </li>
   </ul>
+
+  <footer>
+    <button id='btn-close' class='btn-close'>Close</button>
+    <button id='btn-create-project'> Create </button>
+  </footer>
   </form>
   `;
   wrapper.appendChild(element);

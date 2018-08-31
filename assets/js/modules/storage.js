@@ -3,9 +3,9 @@ function Storage() {
    *
    * @param {object} allProjects Projects object
    */
-  function save(allProjects) {
+  function save(key, allProjects) {
     const data = JSON.stringify(allProjects);
-    window.localStorage.setItem('projects', data);
+    window.localStorage.setItem(key, data);
   }
 
   function load(key) {

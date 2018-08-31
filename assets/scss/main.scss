@@ -30,12 +30,10 @@ h1 {
 }
 
 
-header {
+header,
+footer {
   position: relative;
   button {
-    position: absolute;
-    top: 0;
-    right: 0;
     height: 48px;
     padding: 15px;
     margin: 0;
@@ -44,9 +42,26 @@ header {
     font-size: 16px;
     color: #666;
     background: rgb(165, 248, 41);
+  }
+}
+
+header {
+  button {
+    position: absolute;
+    top: 0;
+    right: 0;
 
   }
 }
+
+footer {
+  display: flex;
+  button {
+    flex-grow: 1;
+  }
+}
+
+
 
 
 .hidden {

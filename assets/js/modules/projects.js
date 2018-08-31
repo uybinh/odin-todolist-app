@@ -1,14 +1,16 @@
 function Projects(initialState) {
-  let ID = 3;
   const allProject = initialState || {};
 
+  function count() {
+    return Object.keys(allProject).length;
+  }
 
   function state() {
     return allProject;
   }
 
   function add(project) {
-    ID += 1;
+    const ID = count() + 1;
     project.id = ID;
     allProject[ID] = project;
     return true;
@@ -22,10 +24,12 @@ function Projects(initialState) {
     delete allProject[id];
   }
 
+
   return {
     state,
     add,
     remove,
+    count,
   };
 }
 
