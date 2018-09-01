@@ -8,6 +8,16 @@ function Todos(initialState) {
     return Object.keys(allTodos).length;
   }
 
+  function fromProject(id) {
+    const filtered = Object.entries(allTodos)
+      .filter(entry => entry[1].project === id)
+      .reduce((obj, entry) => {
+        const [key, value] = entry;
+        return Object.assign(obj, { [key]: value });
+      }, {});
+    return filtered;
+  }
+
   function state() {
     return allTodos;
   }
@@ -32,6 +42,7 @@ function Todos(initialState) {
     add,
     remove,
     count,
+    fromProject,
   };
 }
 

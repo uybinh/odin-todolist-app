@@ -6,7 +6,7 @@ function projectComponent(project) {
     li.dataset.priority = project.priority;
     li.textContent = project.name;
     li.innerHTML += `
-    <span class='btn-delete' data-type='project' data-id='${project.id}'>
+    <span class='btn-delete-project' data-type='project' data-id='${project.id}'>
       <i class="fa fa-trash" aria-hidden="true"></i>
     </span>`;
     return li;

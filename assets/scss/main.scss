@@ -215,6 +215,14 @@ form > ul {
   background-color: rgba(102, 102, 102, 0.699);
   animation: fadeIn .2s ease-in-out 1 forwards;
 }
-
+#new-todo-wrapper {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(102, 102, 102, 0.699);
+  animation: fadeIn .2s ease-in-out 1 forwards;
+}
 
 /*=====  End of   New Project  ======*/

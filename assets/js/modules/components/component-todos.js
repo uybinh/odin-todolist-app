@@ -27,18 +27,3 @@ function componentTodos(todos) {
 }
 
 module.exports = componentTodos;
-// const content = `
-// <div class="container todos">
-// <header>
-//   <h1>To-Do</h1>
-//   <button> Add </button>
-// </header>
-
-// <ul class="list">
-//   <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Go to School</li>
-//   <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Buy eggs</li>
-//   <li><span><i class="fa fa-trash" aria-hidden="true"></i></span>Visit Grandma</li>
-// </ul>
-
-// </div>
-// `;
